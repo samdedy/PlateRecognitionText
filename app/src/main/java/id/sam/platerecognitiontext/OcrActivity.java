@@ -3,6 +3,8 @@ package id.sam.platerecognitiontext;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -30,14 +32,22 @@ import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.Locale;
 
 import id.sam.platerecognitiontext.camera.CameraSource;
 import id.sam.platerecognitiontext.camera.CameraSourcePreview;
 import id.sam.platerecognitiontext.camera.GraphicOverlay;
+import id.sam.platerecognitiontext.model.searchplat.DataSearchPlatModel;
+import id.sam.platerecognitiontext.service.APIClient;
+import id.sam.platerecognitiontext.service.APIInterfacesRest;
 import id.sam.platerecognitiontext.utilities.OcrDetectorProcessor;
 import id.sam.platerecognitiontext.utilities.OcrGraphic;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Activity for the Ocr Detecting app.  This app detects text and displays the value with the
@@ -336,8 +346,13 @@ public class OcrActivity extends AppCompatActivity {
             text = graphic.getTextBlock();
             if (text != null && text.getValue() != null) {
                 Log.d(TAG, "text data is being spoken! " + text.getValue());
+                String noPlat = text.getValue().replaceAll(" ", "");
+                Intent intent = new Intent(OcrActivity.this, ResultActivity.class);
+                intent.putExtra("noPlat", noPlat);
+                startActivity(intent);
+                finish();
                 // Speak the string.
-                tts.speak(text.getValue(), TextToSpeech.QUEUE_ADD, null, "DEFAULT");
+                //tts.speak(text.getValue(), TextToSpeech.QUEUE_ADD, null, "DEFAULT");
             }
             else {
                 Log.d(TAG, "text data is null");
