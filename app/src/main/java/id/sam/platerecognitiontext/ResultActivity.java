@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.location.aravind.getlocation.GeoLocator;
+
 import org.json.JSONObject;
 
 import id.sam.platerecognitiontext.model.searchplat.DataSearchPlatModel;
@@ -20,6 +22,7 @@ import retrofit2.Response;
 public class ResultActivity extends AppCompatActivity {
 
     TextView txtName, txtAlamat, txtNoPlat, txtJenisKendaraan, txtStatus, txtLamaCicilan, txtWarna, txtTypeKendaraan, txtMerk, txtLat, txtLon;
+    Double lat = 0.0, lon = 0.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +40,12 @@ public class ResultActivity extends AppCompatActivity {
         txtMerk = findViewById(R.id.txtMerk);
         txtLat = findViewById(R.id.txtLat);
         txtLon = findViewById(R.id.txtLon);
-        searchPlat(getIntent().getStringExtra("noPlat"));
 
+        GeoLocator geoLocator = new GeoLocator(getApplicationContext(),this);
+        lat = geoLocator.getLattitude();
+        lon = geoLocator.getLongitude();
+
+        searchPlat(getIntent().getStringExtra("noPlat"));
     }
 
     APIInterfacesRest apiInterface;
@@ -65,8 +72,10 @@ public class ResultActivity extends AppCompatActivity {
                     txtWarna.setText(data.getData().getWarna());
                     txtTypeKendaraan.setText(data.getData().getTypeKendaraan());
                     txtMerk.setText(data.getData().getMerk());
-                    txtLat.setText(data.getData().getLat());
-                    txtLon.setText(data.getData().getLon());
+//                    txtLat.setText(data.getData().getLat());
+//                    txtLon.setText(data.getData().getLon());
+                    txtLat.setText(lat.toString());
+                    txtLon.setText(lon.toString());
 
                 }else{
                     try {
