@@ -43,7 +43,6 @@ import retrofit2.Response;
 public class ResultActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     TextView txtName, txtAlamat, txtNoPlat, txtJenisKendaraan, txtStatus, txtLamaCicilan, txtWarna, txtTypeKendaraan, txtMerk, txtLat, txtLon;
-    Button btnApp;
     Double lat = 0.0, lon = 0.0;
     private GoogleMap mMap;
     private AppDatabase mDb;
@@ -65,7 +64,6 @@ public class ResultActivity extends FragmentActivity implements OnMapReadyCallba
         txtMerk = findViewById(R.id.txtMerk);
         txtLat = findViewById(R.id.txtLat);
         txtLon = findViewById(R.id.txtLon);
-        btnApp = findViewById(R.id.btnAdd);
 
         mDb = AppDatabase.getInstance(getApplicationContext());
 
@@ -75,13 +73,6 @@ public class ResultActivity extends FragmentActivity implements OnMapReadyCallba
         mapFragment.getMapAsync(this);
 
         searchPlat(getIntent().getStringExtra("noPlat"));
-
-        btnApp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                editPlat(txtNoPlat.getText().toString());
-            }
-        });
     }
 
     @Override
@@ -166,6 +157,7 @@ public class ResultActivity extends FragmentActivity implements OnMapReadyCallba
 //                            .title("Lokasi sebelumnya"));
                     txtLat.setText(lat.toString());
                     txtLon.setText(lon.toString());
+                    editPlat(data.getData().getNoPlat());
 
                 }else{
                     try {
@@ -214,12 +206,12 @@ public class ResultActivity extends FragmentActivity implements OnMapReadyCallba
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            List<PlatesModel> plateModelList = new ArrayList<>();
+                            PlatesModel plateModelList = null;
                             plateModelList = mDb.plateDAO().findByNoPlate(txtNoPlat.getText().toString());
-                            if (plateModelList.size() == 0){ // jika no_plat belum ada
+                            if (plateModelList == null){ // jika no_plat belum ada
                                 mDb.plateDAO().insertAll(generateObjectData());
                             } else {// jika no_plat sudah ada
-                                id = plateModelList.get(1).getId();
+                                id = plateModelList.getId();
                                 mDb.plateDAO().updatePlate(generateObjectData());
                             }
                         }
@@ -253,7 +245,7 @@ public class ResultActivity extends FragmentActivity implements OnMapReadyCallba
 
     public PlatesModel generateObjectData(){
         PlatesModel plateModel = new PlatesModel();
-//        plateModel.setId(1);
+        plateModel.setId(id);
         plateModel.setName(txtName.getText().toString());
         plateModel.setAlamat(txtAlamat.getText().toString());
         plateModel.setNoPlat(txtNoPlat.getText().toString());

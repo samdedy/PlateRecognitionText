@@ -3,6 +3,7 @@ package id.sam.platerecognitiontext;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -56,7 +57,7 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
         txtLon = findViewById(R.id.txtLon);
         btnApp = findViewById(R.id.btnAdd);
 
-        Bundle bundle = getIntent().getBundleExtra(MainActivity.DATA_EXTRA);
+        final Bundle bundle = getIntent().getBundleExtra(MainActivity.DATA_EXTRA);
         platesModel = Parcels.unwrap(bundle.getParcelable(MainActivity.DATA_SEARCH));
 
         mappingData();
@@ -71,7 +72,22 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
         btnApp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                String text = "Name : "+platesModel.getName()+"\n"+
+                        "Alamat : "+platesModel.getAlamat()+"\n"+
+                        "No Plat : "+platesModel.getNoPlat()+"\n"+
+                        "Jenis Kendaraan : "+platesModel.getJenisKendaraan()+"\n"+
+                        "Status : "+platesModel.getStatus()+"\n"+
+                        "Lama Cicilan : "+platesModel.getLamaCicilan()+"\n"+
+                        "Warna : "+platesModel.getWarna()+"\n"+
+                        "Type Kendaraan : "+platesModel.getTypeKendaraan()+"\n"+
+                        "Merk : "+platesModel.getMerk()+"\n"+
+                        "Lat : "+platesModel.getLat()+"\n"+
+                        "Lon : "+platesModel.getLon()+"\n";
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+                sendIntent.setType("text/plain");
+                startActivity(sendIntent);
             }
         });
     }
