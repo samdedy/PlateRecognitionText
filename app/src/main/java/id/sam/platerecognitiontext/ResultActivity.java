@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,7 +26,11 @@ import com.location.aravind.getlocation.GeoLocator;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import id.sam.platerecognitiontext.model.edit.DataEditPlatModel;
+import id.sam.platerecognitiontext.model.room.PlatesModel;
 import id.sam.platerecognitiontext.model.searchplat.DataSearchPlatModel;
 import id.sam.platerecognitiontext.service.APIClient;
 import id.sam.platerecognitiontext.service.APIInterfacesRest;
@@ -37,8 +43,11 @@ import retrofit2.Response;
 public class ResultActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     TextView txtName, txtAlamat, txtNoPlat, txtJenisKendaraan, txtStatus, txtLamaCicilan, txtWarna, txtTypeKendaraan, txtMerk, txtLat, txtLon;
+    Button btnApp;
     Double lat = 0.0, lon = 0.0;
     private GoogleMap mMap;
+    private AppDatabase mDb;
+    int id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +65,9 @@ public class ResultActivity extends FragmentActivity implements OnMapReadyCallba
         txtMerk = findViewById(R.id.txtMerk);
         txtLat = findViewById(R.id.txtLat);
         txtLon = findViewById(R.id.txtLon);
+        btnApp = findViewById(R.id.btnAdd);
+
+        mDb = AppDatabase.getInstance(getApplicationContext());
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -64,12 +76,12 @@ public class ResultActivity extends FragmentActivity implements OnMapReadyCallba
 
         searchPlat(getIntent().getStringExtra("noPlat"));
 
-        new Handler().postDelayed(new Runnable() {
+        btnApp.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void run() {
-                editPlat(getIntent().getStringExtra("noPlat"));
+            public void onClick(View view) {
+                editPlat(txtNoPlat.getText().toString());
             }
-        },3000);
+        });
     }
 
     @Override
@@ -199,6 +211,19 @@ public class ResultActivity extends FragmentActivity implements OnMapReadyCallba
                 DataEditPlatModel data = response.body();
                 if (data !=null) {
                     Toast.makeText(ResultActivity.this, data.getMessage(), Toast.LENGTH_LONG).show();
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            List<PlatesModel> plateModelList = new ArrayList<>();
+                            plateModelList = mDb.plateDAO().findByNoPlate(txtNoPlat.getText().toString());
+                            if (plateModelList.size() == 0){ // jika no_plat belum ada
+                                mDb.plateDAO().insertAll(generateObjectData());
+                            } else {// jika no_plat sudah ada
+                                id = plateModelList.get(1).getId();
+                                mDb.plateDAO().updatePlate(generateObjectData());
+                            }
+                        }
+                    }).start();
                 }else{
                     try {
                         JSONObject jObjError = new JSONObject(response.errorBody().string());
@@ -224,5 +249,24 @@ public class ResultActivity extends FragmentActivity implements OnMapReadyCallba
         }
         RequestBody body = RequestBody.create(MediaType.parse("text/plain"), value);
         return body;
+    }
+
+    public PlatesModel generateObjectData(){
+        PlatesModel plateModel = new PlatesModel();
+//        plateModel.setId(1);
+        plateModel.setName(txtName.getText().toString());
+        plateModel.setAlamat(txtAlamat.getText().toString());
+        plateModel.setNoPlat(txtNoPlat.getText().toString());
+        plateModel.setJenisKendaraan(txtJenisKendaraan.getText().toString());
+        plateModel.setStatus(txtStatus.getText().toString());
+        plateModel.setLamaCicilan(txtLamaCicilan.getText().toString());
+        plateModel.setWarna(txtWarna.getText().toString());
+        plateModel.setTypeKendaraan(txtTypeKendaraan.getText().toString());
+        plateModel.setMerk(txtMerk.getText().toString());
+        plateModel.setLat(String.valueOf(lat));
+        plateModel.setLon(String.valueOf(lon));
+        plateModel.setPenunggakan("4");
+        plateModel.setImagePlat("");
+        return plateModel;
     }
 }
