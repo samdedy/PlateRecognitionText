@@ -16,6 +16,12 @@ public interface PlateDAO {
     @Query("SELECT * FROM PlatesModel WHERE no_plat = :no_plat")
     PlatesModel findByNoPlate(String no_plat);
 
+    @Query("SELECT * FROM PlatesModel " +
+            "WHERE name LIKE '%' || :search || '%' " +
+            "OR  alamat LIKE '%' || :search || '%' " +
+            "OR  no_plat LIKE '%' || :search || '%' ")
+    List<PlatesModel> findBySearch(String search);
+
     @Query("SELECT * FROM PlatesModel WHERE id = :id")
     PlatesModel findById(int id);
 

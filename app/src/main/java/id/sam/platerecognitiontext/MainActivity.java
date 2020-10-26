@@ -7,20 +7,28 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.json.JSONObject;
 import org.parceler.Parcels;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import id.sam.platerecognitiontext.adapter.AdapterListBasic;
@@ -30,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements AdapterListBasic.
 
     FloatingActionButton fab;
     RecyclerView rvPlate;
+    private ProgressBar progressBar;
     private AppDatabase mDb;
     private AdapterListBasic adapter;
     public static final String DATA_SEARCH = "dataSearch";
@@ -39,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements AdapterListBasic.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        progressBar = findViewById(R.id.progressBar);
         rvPlate = findViewById(R.id.rvPlate);
         rvPlate.setHasFixedSize(true);
         rvPlate.setLayoutManager(new LinearLayoutManager(this));
@@ -57,12 +67,61 @@ public class MainActivity extends AppCompatActivity implements AdapterListBasic.
                 startActivity(intent);
             }
         });
+        showLoading(false);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+
+        if (searchManager != null){
+            SearchView searchView = (SearchView) (menu.findItem(R.id.search)).getActionView();
+            searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+            searchView.setQueryHint("Search...");
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    showLoading(true);
+                    if (TextUtils.isEmpty(query)) {
+                        loadDatabase();
+                    }
+                    setSearch(query);
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(final String newText) {
+
+                    return false;
+                }
+            });
+        }
+
+        return true;
+    }
+
+    public void setSearch(final String search){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                List<PlatesModel> listItems = null;
+                listItems = mDb.plateDAO().findBySearch(search);
+                adapter = new AdapterListBasic(MainActivity.this, listItems);
+                adapter.setOnItemClickListener(MainActivity.this);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        rvPlate.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                        rvPlate.setItemAnimator(new DefaultItemAnimator());
+                        rvPlate.setAdapter(adapter);
+                    }
+                });
+                showLoading(false);
+            }
+        }).start();
     }
 
     @Override
@@ -86,12 +145,7 @@ public class MainActivity extends AppCompatActivity implements AdapterListBasic.
                             @Override
                             public void run() {
                                 mDb.plateDAO().deletePlateAll();
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        loadDatabase();
-                                    }
-                                }).start();
+                                loadDatabase();
                             }
                         }).start();
                     }
@@ -146,5 +200,13 @@ public class MainActivity extends AppCompatActivity implements AdapterListBasic.
                 loadDatabase();
             }
         }).start();
+    }
+
+    private void showLoading(Boolean state){
+        if (state){
+            progressBar.setVisibility(View.VISIBLE);
+        } else {
+            progressBar.setVisibility(View.GONE);
+        }
     }
 }
