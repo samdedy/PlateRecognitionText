@@ -29,8 +29,9 @@ public class SplashActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                SplashActivity.this.startActivity(new Intent(SplashActivity.this, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                SplashActivity.this.finish();
+                Intent intent = new Intent(SplashActivity.this, MenuActivity.class);
+                startActivity(intent);
+                finish();
             }
         }, 3000);
     }
