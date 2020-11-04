@@ -22,12 +22,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".MenuActivity"
-            android:theme="@style/AppThemeNoActionBar">
-
-        </activity>
-        <activity android:name=".DetailActivity"
-            android:theme="@style/AppThemeNoActionBar"/>
+        <activity android:name=".ListAllActivity"
+            android:theme="@style/AppThemeNoActionBar"></activity>
+        <activity
+            android:name=".MenuActivity"
+            android:theme="@style/AppThemeNoActionBar"></activity>
+        <activity
+            android:name=".DetailActivity"
+            android:theme="@style/AppThemeNoActionBar" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -41,12 +43,12 @@
             android:value="@string/google_maps_key" />
 
         <activity android:name=".NotFoundActivity" />
-        <activity android:name=".ResultActivity"
-            android:theme="@style/AppThemeNoActionBar"/>
-        <activity android:name=".OcrActivity" >
-
-        </activity>
-        <activity android:name=".SplashActivity"
+        <activity
+            android:name=".ResultActivity"
+            android:theme="@style/AppThemeNoActionBar" />
+        <activity android:name=".OcrActivity"></activity>
+        <activity
+            android:name=".SplashActivity"
             android:theme="@style/AppThemeNoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -54,7 +56,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"/>
+        <activity android:name=".MainActivity" />
     </application>
 
 </manifest>

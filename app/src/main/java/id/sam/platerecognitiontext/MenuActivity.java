@@ -10,7 +10,7 @@ import android.webkit.WebView;
 
 public class MenuActivity extends AppCompatActivity {
 
-    CardView cvScan, cvListHistory, cvKeluar;
+    CardView cvScan, cvListHistory, cvKeluar, cvListAll;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +20,7 @@ public class MenuActivity extends AppCompatActivity {
         cvScan = findViewById(R.id.cvScan);
         cvListHistory = findViewById(R.id.cvListHistory);
         cvKeluar = findViewById(R.id.cvKeluar);
+        cvListAll = findViewById(R.id.cvListAll);
 
         cvScan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -41,6 +42,14 @@ public class MenuActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 finish();
+            }
+        });
+
+        cvListAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MenuActivity.this,ListAllActivity.class);
+                startActivity(intent);
             }
         });
     }

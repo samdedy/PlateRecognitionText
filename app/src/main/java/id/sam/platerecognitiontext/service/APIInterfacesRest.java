@@ -1,6 +1,7 @@
 package id.sam.platerecognitiontext.service;
 
 import id.sam.platerecognitiontext.model.edit.DataEditPlatModel;
+import id.sam.platerecognitiontext.model.listall.ListAllModel;
 import id.sam.platerecognitiontext.model.searchplat.DataSearchPlatModel;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -80,6 +81,10 @@ public interface APIInterfacesRest {
 //           @Field("password") String password,
 //           @Header("X-Token") String token);
 //
+
+   @GET("product/all")
+   Call<ListAllModel> getListAll();
+
    @GET("product/show/{noPlat}")
    Call<DataSearchPlatModel> getSearchPlat(@Path("noPlat") String noPlat);
 

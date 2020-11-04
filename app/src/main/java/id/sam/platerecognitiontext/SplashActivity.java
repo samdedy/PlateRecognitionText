@@ -9,6 +9,8 @@ import android.os.Handler;
 import android.webkit.WebView;
 import android.widget.ImageView;
 
+import java.util.regex.Pattern;
+
 public class SplashActivity extends AppCompatActivity {
 
     ImageView mImageAnimation;
