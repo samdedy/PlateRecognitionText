@@ -85,6 +85,9 @@ public interface APIInterfacesRest {
    @GET("product/all")
    Call<ListAllModel> getListAll();
 
+   @GET("product/search/{param}")
+   Call<ListAllModel> getSearchList(@Path("param") String param);
+
    @GET("product/show/{noPlat}")
    Call<DataSearchPlatModel> getSearchPlat(@Path("noPlat") String noPlat);
 

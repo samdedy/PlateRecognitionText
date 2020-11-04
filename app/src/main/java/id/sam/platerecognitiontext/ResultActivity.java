@@ -128,7 +128,7 @@ public class ResultActivity extends FragmentActivity implements OnMapReadyCallba
 
     APIInterfacesRest apiInterface;
     ProgressDialog progressDialog;
-    public void searchPlat(String noPlat){
+    public void searchPlat(final String noPlat){
         apiInterface = APIClient.getClient().create(APIInterfacesRest.class);
         progressDialog = new ProgressDialog(ResultActivity.this);
         progressDialog.setTitle("Loading");
@@ -157,7 +157,21 @@ public class ResultActivity extends FragmentActivity implements OnMapReadyCallba
 //                            .title("Lokasi sebelumnya"));
                     txtLat.setText(lat.toString());
                     txtLon.setText(lon.toString());
-                    editPlat(data.getData().getNoPlat());
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            PlatesModel plateModelList = null;
+                            plateModelList = mDb.plateDAO().findByNoPlate(noPlat);
+                            if (plateModelList == null){ // jika no_plat belum ada
+                                mDb.plateDAO().insertAll(generateObjectData());
+                            } else {// jika no_plat sudah ada
+                                id = plateModelList.getId();
+                                mDb.plateDAO().updatePlate(generateObjectData());
+                                editPlat(noPlat);
+                            }
+                        }
+                    }).start();
 
                 }else{
                     try {
@@ -203,19 +217,6 @@ public class ResultActivity extends FragmentActivity implements OnMapReadyCallba
                 DataEditPlatModel data = response.body();
                 if (data !=null) {
                     Toast.makeText(ResultActivity.this, data.getMessage(), Toast.LENGTH_LONG).show();
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            PlatesModel plateModelList = null;
-                            plateModelList = mDb.plateDAO().findByNoPlate(txtNoPlat.getText().toString());
-                            if (plateModelList == null){ // jika no_plat belum ada
-                                mDb.plateDAO().insertAll(generateObjectData());
-                            } else {// jika no_plat sudah ada
-                                id = plateModelList.getId();
-                                mDb.plateDAO().updatePlate(generateObjectData());
-                            }
-                        }
-                    }).start();
                 }else{
                     try {
                         JSONObject jObjError = new JSONObject(response.errorBody().string());
@@ -245,7 +246,9 @@ public class ResultActivity extends FragmentActivity implements OnMapReadyCallba
 
     public PlatesModel generateObjectData(){
         PlatesModel plateModel = new PlatesModel();
-        plateModel.setId(id);
+        if (id != 0){
+            plateModel.setId(id);
+        }
         plateModel.setName(txtName.getText().toString());
         plateModel.setAlamat(txtAlamat.getText().toString());
         plateModel.setNoPlat(txtNoPlat.getText().toString());

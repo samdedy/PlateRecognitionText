@@ -9,7 +9,9 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONObject;
@@ -33,16 +35,27 @@ public class ListAllActivity extends AppCompatActivity implements AdapterListAll
 
     RecyclerView rvListAll;
     ProgressBar pbListAll;
+    TextView txtSearch;
+    Button btnSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_all);
 
+        txtSearch = findViewById(R.id.txtSearch);
         pbListAll = findViewById(R.id.pbListAll);
         rvListAll = findViewById(R.id.rvListAll);
+        btnSearch = findViewById(R.id.btnSearch);
 
         callListAll();
+
+        btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchPlat(txtSearch.getText().toString());
+            }
+        });
     }
 
     APIInterfacesRest apiInterface;
@@ -81,29 +94,24 @@ public class ListAllActivity extends AppCompatActivity implements AdapterListAll
     }
 
     ProgressDialog progressDialog;
-    public void searchPlat(String noPlat){
+    public void searchPlat(String param){
         apiInterface = APIClient.getClient().create(APIInterfacesRest.class);
         progressDialog = new ProgressDialog(ListAllActivity.this);
         progressDialog.setTitle("Loading");
         progressDialog.show();
 
-        Call<DataSearchPlatModel> call3 = apiInterface.getSearchPlat((String) noPlat);
-        call3.enqueue(new Callback<DataSearchPlatModel>() {
+        Call<ListAllModel> call3 = apiInterface.getSearchList((String) param);
+        call3.enqueue(new Callback<ListAllModel>() {
             @Override
-            public void onResponse(Call<DataSearchPlatModel> call, Response<DataSearchPlatModel> response) {
+            public void onResponse(Call<ListAllModel> call, Response<ListAllModel> response) {
                 progressDialog.dismiss();
-                DataSearchPlatModel data = response.body();
-                if (data !=null) {
-//                    List<Product> productList = new ArrayList<>();
-//                    for (int i=0; i<1; i++){
-//                        productList.add(data.getData());
-//                    }
-//
-//                    AdapterListAll adapter = new AdapterListAll(ListAllActivity.this,productList);
-//                    adapter.setOnItemClickListener(ListAllActivity.this);
-//                    rvListAll.setLayoutManager(new LinearLayoutManager(ListAllActivity.this));
-//                    rvListAll.setItemAnimator(new DefaultItemAnimator());
-//                    rvListAll.setAdapter(adapter);
+                ListAllModel listAllModel = response.body();
+                if (listAllModel !=null) {
+                    AdapterListAll adapter = new AdapterListAll(ListAllActivity.this,listAllModel.getProduct());
+                    adapter.setOnItemClickListener(ListAllActivity.this);
+                    rvListAll.setLayoutManager(new LinearLayoutManager(ListAllActivity.this));
+                    rvListAll.setItemAnimator(new DefaultItemAnimator());
+                    rvListAll.setAdapter(adapter);
 
                 }else{
                     try {
@@ -122,7 +130,7 @@ public class ListAllActivity extends AppCompatActivity implements AdapterListAll
             }
 
             @Override
-            public void onFailure(Call<DataSearchPlatModel> call, Throwable t) {
+            public void onFailure(Call<ListAllModel> call, Throwable t) {
                 progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(),"Maaf koneksi bermasalah",Toast.LENGTH_LONG).show();
                 call.cancel();
