@@ -43,6 +43,7 @@ import retrofit2.Response;
 public class ResultActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     TextView txtName, txtAlamat, txtNoPlat, txtJenisKendaraan, txtStatus, txtLamaCicilan, txtWarna, txtTypeKendaraan, txtMerk, txtLat, txtLon;
+    Button btnUpdate;
     Double lat = 0.0, lon = 0.0;
     private GoogleMap mMap;
     private AppDatabase mDb;
@@ -64,6 +65,7 @@ public class ResultActivity extends FragmentActivity implements OnMapReadyCallba
         txtMerk = findViewById(R.id.txtMerk);
         txtLat = findViewById(R.id.txtLat);
         txtLon = findViewById(R.id.txtLon);
+        btnUpdate = findViewById(R.id.btnUpdate);
 
         mDb = AppDatabase.getInstance(getApplicationContext());
 
@@ -73,6 +75,12 @@ public class ResultActivity extends FragmentActivity implements OnMapReadyCallba
         mapFragment.getMapAsync(this);
 
         searchPlat(getIntent().getStringExtra("noPlat"));
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editPlat(getIntent().getStringExtra("noPlat"));
+            }
+        });
     }
 
     @Override
@@ -168,7 +176,7 @@ public class ResultActivity extends FragmentActivity implements OnMapReadyCallba
                             } else {// jika no_plat sudah ada
                                 id = plateModelList.getId();
                                 mDb.plateDAO().updatePlate(generateObjectData());
-                                editPlat(noPlat);
+//                                editPlat(noPlat);
                             }
                         }
                     }).start();
